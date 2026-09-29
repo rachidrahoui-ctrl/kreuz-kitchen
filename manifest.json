@@ -1,0 +1,12 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Kreuz Kitchen",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "Kreuz",
+  "start_url": "/",
+  "theme_color": "#ffffff",
+  "description": "KDS &amp; Gestion de Cuisine"
+}
