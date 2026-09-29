@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kreuz Kitchen • KDS & Chef de Partie Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { 900: '#0a0d14', 800: '#111622', 700: '#1a2233', 600: '#263248' },
+                        amber: { 500: '#f59e0b', 600: '#d97706' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-dark-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col selection:bg-amber-500 selection:text-black">
+
+    <header class="bg-dark-800 border-b border-slate-800 sticky top-0 z-30 px-4 py-3 flex items-center justify-between shadow-lg">
+        <div class="flex items-center space-x-3">
+            <div class="bg-amber-500 text-black font-black px-2.5 py-1 rounded text-sm tracking-wider">KREUZ</div>
+            <div>
+                <h1 class="text-sm font-bold text-amber-500 tracking-wider">KITCHEN PASS & KDS</h1>
+                <p class="text-[10px] text-slate-400">Système Professionnel de Pilotage de Cuisine</p>
+            </div>
+        </div>
+        <nav class="hidden md:flex space-x-1 bg-dark-900 p-1 rounded-lg border border-slate-800">
+            <button onclick="switchTab('service')" id="btn-tab-service" class="px-4 py-1.5 rounded-md text-xs font-bold transition-all bg-amber-500 text-black shadow">Service (Pass)</button>
+            <button onclick="switchTab('recipes')" id="btn-tab-recipes" class="px-4 py-1.5 rounded-md text-xs font-bold transition-all text-slate-300 hover:text-white">Recettes & Fiches</button>
+            <button onclick="switchTab('scale')" id="btn-tab-scale" class="px-4 py-1.5 rounded-md text-xs font-bold transition-all text-slate-300 hover:text-white">Banquets & Échelle</button>
+            <button onclick="switchTab('haccp')" id="btn-tab-haccp" class="px-4 py-1.5 rounded-md text-xs font-bold transition-all text-slate-300 hover:text-white">Sondes HACCP</button>
+        </nav>
+        <div class="flex items-center space-x-2">
+            <button onclick="openNewTicketModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3 py-2 rounded-lg flex items-center space-x-1.5 shadow transition-all">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Nouveau Bon</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-dark-800 border-t border-slate-800 z-30 grid grid-cols-4 p-1 text-center">
+        <button onclick="switchTab('service')" id="bm-tab-service" class="py-2 text-[10px] font-bold text-amber-500 flex flex-col items-center">
+            <i data-lucide="monitor" class="w-4 h-4 mb-0.5"></i>Pass
+        </button>
+        <button onclick="switchTab('recipes')" id="bm-tab-recipes" class="py-2 text-[10px] font-bold text-slate-400 flex flex-col items-center">
+            <i data-lucide="book-open" class="w-4 h-4 mb-0.5"></i>Recettes
+        </button>
+        <button onclick="switchTab('scale')" id="bm-tab-scale" class="py-2 text-[10px] font-bold text-slate-400 flex flex-col items-center">
+            <i data-lucide="calculator" class="w-4 h-4 mb-0.5"></i>Échelle
+        </button>
+        <button onclick="switchTab('haccp')" id="bm-tab-haccp" class="py-2 text-[10px] font-bold text-slate-400 flex flex-col items-center">
+            <i data-lucide="shield-check" class="w-4 h-4 mb-0.5"></i>HACCP
+        </button>
+    </div>
+
+    <main class="flex-1 pb-16 md:pb-0">
+        <!-- SERVICE TAB -->
+        <section id="tab-service" class="p-4 max-w-7xl mx-auto w-full">
+            <div class="bg-amber-950/70 border border-amber-600/50 rounded-xl p-3.5 mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-amber-500 text-black p-2 rounded-lg"><i data-lucide="megaphone" class="w-5 h-5"></i></div>
+                    <div>
+                        <span class="text-[10px] tracking-wider uppercase font-extrabold text-amber-400">Directive du Küchenchef</span>
+                        <p id="chef-banner-text" class="text-xs sm:text-sm font-medium text-slate-100">Préchauffer les assiettes à 60°C au passe-plat.</p>
+                    </div>
+                </div>
+                <button onclick="openEditChefNoteModal()" class="bg-amber-600 hover:bg-amber-500 text-black font-bold text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow transition-all">
+                    Modifier Consigne
+                </button>
+            </div>
+
+            <div class="flex items-center space-x-2 overflow-x-auto pb-2 mb-4 scrollbar-none">
+                <button onclick="filterStation('ALL')" id="filter-all" class="station-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-black shadow whitespace-nowrap">Tous les Postes</button>
+                <button onclick="filterStation('Saucier / Rôtisseur')" id="filter-saucier" class="station-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-dark-700 text-slate-300 hover:bg-dark-600 whitespace-nowrap">Saucier / Rôtisseur</button>
+                <button onclick="filterStation('Entremetier / Potager')" id="filter-entremetier" class="station-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-dark-700 text-slate-300 hover:bg-dark-600 whitespace-nowrap">Entremetier / Potager</button>
+                <button onclick="filterStation('Garde-Manger')" id="filter-gardemanger" class="station-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-dark-700 text-slate-300 hover:bg-dark-600 whitespace-nowrap">Garde-Manger</button>
+            </div>
+
+            <div id="tickets-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </section>
+
+        <!-- RECIPES TAB -->
+        <section id="tab-recipes" class="p-4 max-w-7xl mx-auto w-full hidden">
+            <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-6 bg-dark-800 p-4 rounded-xl border border-slate-800 shadow-md">
+                <div class="flex-1">
+                    <label class="block text-xs font-bold text-amber-500 mb-1">SÉLECTIONNER UNE FICHE TECHNIQUE</label>
+                    <select id="recipe-select" onchange="selectRecipe(this.value)" class="w-full bg-dark-900 border border-slate-700 rounded-lg p-2.5 text-sm font-medium text-white focus:outline-none focus:border-amber-500"></select>
+                </div>
+                <div class="flex items-center space-x-2 pt-2 md:pt-0">
+                    <button onclick="openEditDishModal()" class="flex-1 md:flex-initial bg-amber-600 hover:bg-amber-500 text-black font-bold text-xs px-4 py-2.5 rounded-lg shadow transition-all flex items-center justify-center space-x-1.5">
+                        <i data-lucide="edit-3" class="w-4 h-4"></i><span>Modifier</span>
+                    </button>
+                    <button onclick="openAddDishModal()" class="flex-1 md:flex-initial bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2.5 rounded-lg shadow transition-all flex items-center justify-center space-x-1.5">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i><span>Nouveau Plat</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="bg-dark-800 border border-slate-800 rounded-xl p-6 shadow-md">
+                        <div class="flex items-center justify-between mb-2">
+                            <span id="rec-station-badge" class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">Station</span>
+                            <span class="text-xs font-semibold text-slate-400 flex items-center"><i data-lucide="clock" class="w-3.5 h-3.5 mr-1"></i> <span id="rec-dur-val">5</span> min</span>
+                        </div>
+                        <h2 id="rec-title-de" class="text-2xl font-black text-white mb-1">Titre Allemand</h2>
+                        <p id="rec-title-fr" class="text-sm font-medium text-slate-400 mb-6">Titre Français</p>
+
+                        <div class="bg-red-950/60 border border-red-900/60 rounded-xl p-4 mb-4">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <i data-lucide="alert-triangle" class="w-4 h-4 text-red-400"></i>
+                                <span class="text-xs font-bold text-red-300">POINT CRITIQUE : <span id="rec-crit-temp">90-95°C</span></span>
+                            </div>
+                            <p id="rec-crit-tech" class="text-xs text-red-100/90 leading-relaxed">Description technique...</p>
+                        </div>
+
+                        <div class="bg-emerald-950/50 border border-emerald-900/50 rounded-xl p-4">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <i data-lucide="award" class="w-4 h-4 text-emerald-400"></i>
+                                <span class="text-xs font-bold text-emerald-300">CONSIGNE DU KÜCHENCHEF</span>
+                            </div>
+                            <p id="rec-chef-notes" class="text-xs text-emerald-100/90 leading-relaxed">Notes...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-dark-800 border border-slate-800 rounded-xl p-6 shadow-md h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-bold text-amber-500 tracking-wider">INGRÉDIENTS (1 COUVERT)</h3>
+                            <i data-lucide="scale" class="w-4 h-4 text-amber-500"></i>
+                        </div>
+                        <div id="rec-ingredients-list" class="space-y-2.5 flex-1 overflow-y-auto pr-1"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCALE TAB -->
+        <section id="tab-scale" class="p-4 max-w-4xl mx-auto w-full hidden">
+            <div class="bg-dark-800 border border-slate-800 rounded-xl p-6 shadow-md mb-6">
+                <h2 class="text-base font-bold text-amber-500 mb-4 flex items-center">
+                    <i data-lucide="calculator" class="w-5 h-5 mr-2"></i> CALCULATEUR BANQUETS & MISE EN PLACE
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">CHOISIR LA RECETTE</label>
+                        <select id="scale-recipe-select" onchange="updateScale()" class="w-full bg-dark-900 border border-slate-700 rounded-lg p-2.5 text-sm font-medium text-white focus:outline-none focus:border-amber-500"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">NOMBRE DE COUVERTS</label>
+                        <input type="number" id="scale-covers-input" value="10" min="1" max="1000" oninput="updateScale()" class="w-full bg-dark-900 border border-slate-700 rounded-lg p-2.5 text-sm font-bold text-white focus:outline-none focus:border-amber-500">
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <button onclick="setCovers(1)" class="px-3 py-1.5 bg-dark-700 hover:bg-dark-600 rounded-lg text-xs font-bold transition-all">1 Couvert</button>
+                    <button onclick="setCovers(10)" class="px-3 py-1.5 bg-dark-700 hover:bg-dark-600 rounded-lg text-xs font-bold transition-all">10 Couverts</button>
+                    <button onclick="setCovers(25)" class="px-3 py-1.5 bg-dark-700 hover:bg-dark-600 rounded-lg text-xs font-bold transition-all">25 Couverts</button>
+                    <button onclick="setCovers(50)" class="px-3 py-1.5 bg-dark-700 hover:bg-dark-600 rounded-lg text-xs font-bold transition-all">50 Couverts</button>
+                    <button onclick="setCovers(100)" class="px-3 py-1.5 bg-dark-700 hover:bg-dark-600 rounded-lg text-xs font-bold transition-all">100 Couverts</button>
+                </div>
+
+                <div class="bg-dark-900 border border-slate-800 rounded-xl p-5">
+                    <h3 id="scale-output-title" class="text-sm font-bold text-amber-400 mb-3 pb-2 border-b border-slate-800">Mise en place proportionnée</h3>
+                    <div id="scale-output-list" class="space-y-2"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- HACCP TAB -->
+        <section id="tab-haccp" class="p-4 max-w-5xl mx-auto w-full hidden">
+            <div class="bg-dark-800 border border-slate-800 rounded-xl p-6 shadow-md mb-6">
+                <h2 class="text-base font-bold text-amber-500 mb-4 flex items-center">
+                    <i data-lucide="shield-check" class="w-5 h-5 mr-2"></i> REGISTRE HACCP • CONTRÔLE THERMIQUE DU PASS
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">PLAT CONTRÔLÉ</label>
+                        <select id="haccp-recipe-select" onchange="onHaccpRecipeSelected()" class="w-full bg-dark-900 border border-slate-700 rounded-lg p-2.5 text-sm font-medium text-white focus:outline-none focus:border-amber-500"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">TEMPÉRATURE MESURÉE (°C)</label>
+                        <input type="number" step="0.1" id="haccp-temp-input" value="75.0" class="w-full bg-dark-900 border border-slate-700 rounded-lg p-2.5 text-sm font-bold text-white focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="recordHaccpProbe()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 px-4 rounded-lg shadow transition-all flex items-center justify-center space-x-1.5">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i><span>Enregistrer Mesure</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-dark-800 border border-slate-800 rounded-xl p-6 shadow-md">
+                <h3 class="text-sm font-bold text-white mb-4">HISTORIQUE DES CONTRÔLES DU JOUR</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-800 text-slate-400">
+                                <th class="pb-3 font-semibold">Heure</th>
+                                <th class="pb-3 font-semibold">Plat / Produit</th>
+                                <th class="pb-3 font-semibold">Mesure Sonde</th>
+                                <th class="pb-3 font-semibold">Cible Requise</th>
+                                <th class="pb-3 font-semibold">Statut HACCP</th>
+                            </tr>
+                        </thead>
+                        <tbody id="haccp-logs-tbody" class="divide-y divide-slate-800/60"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <div id="modal-new-ticket" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-dark-800 border border-slate-700 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+            <h3 class="text-base font-bold text-amber-500 mb-4">Lancer un bon de commande au Pass</h3>
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Numéro de Table / Commande</label>
+                    <input type="text" id="ticket-table-input" placeholder="ex: Table 4, VIP" class="w-full bg-dark-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Sélectionner le plat</label>
+                    <select id="ticket-recipe-select" class="w-full bg-dark-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-amber-500"></select>
+                </div>
+            </div>
+            <div class="flex items-center justify-end space-x-3">
+                <button onclick="closeModal('modal-new-ticket')" class="px-4 py-2 bg-dark-700 hover:bg-dark-600 rounded-lg text-xs font-bold transition-all">Annuler</button>
+                <button onclick="confirmNewTicket()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow transition-all">Lancer au Pass</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const MASTER_RECIPES_SEEDS = [
+            {
+                "id": "rec_1", "title_de": "Rinderkraftbrühe mit Kräuterflädle", "title_fr": "Bouillon de Bœuf aux Crêpes d'Herbes",
+                "station": "Entremetier / Potager", "duration_min": 3, "critical_temp": "Bouillon: 90-95°C", "target_core_temp": 92.0,
+                "critical_tech": "Bouillon cristallin sans ébullition des crêpes.", "chef_notes": "Maintenir la louche chaude.",
+                "ingredients": [
+                    {"name": "Bouillon clair de bœuf", "amount": 250, "unit": "ml", "note": "Os et garniture"},
+                    {"name": "Flädle (crêpes herbes)", "amount": 30, "unit": "g", "note": "Taillées 3mm"}
+                ],
+                "commis_step": "Sort Flädle à 4°C, dispose 30g au centre.", "cdp_step": "Prélève 250 ml de bouillon bouillant (92°C).", "chef_step": "Parsème ciboulette et valide l'envoi."
+            },
+            {
+                "id": "rec_2", "title_de": "Wiener Schnitzel vom Kalbsrücken", "title_fr": "Escalope Viennoise de Veau",
+                "station": "Saucier / Rôtisseur", "duration_min": 7, "critical_temp": "Friteuse 175°C", "target_core_temp": 72.0,
+                "critical_tech": "Geste 'Soufflieren': oscillation constante.", "chef_notes": "Ne jamais écraser la panure.",
+                "ingredients": [
+                    {"name": "Faux-filet de veau", "amount": 190, "unit": "g", "note": "Fin 2-3 mm"},
+                    {"name": "Chapelure fraîche", "amount": 40, "unit": "g", "note": "Aérée"}
+                ],
+                "commis_step": "Réalise la panure anglaise.", "cdp_step": "Cuit 90s par face dans le Butterschmalz.", "chef_step": "Éponge papier absorbant, citron et câpre."
+            }
+        ];
+
+        let state = {
+            recipes: JSON.parse(localStorage.getItem('kreuz_recipes')) || MASTER_RECIPES_SEEDS,
+            activeTickets: JSON.parse(localStorage.getItem('kreuz_tickets')) || [],
+            haccpLogs: JSON.parse(localStorage.getItem('kreuz_haccp')) || [],
+            activeStationFilter: 'ALL'
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            initApp();
+            setInterval(tickTickets, 1000);
+        });
+
+        function saveState() {
+            localStorage.setItem('kreuz_recipes', JSON.stringify(state.recipes));
+            localStorage.setItem('kreuz_tickets', JSON.stringify(state.activeTickets));
+            localStorage.setItem('kreuz_haccp', JSON.stringify(state.haccpLogs));
+        }
+
+        function initApp() {
+            populateSelects();
+            renderTickets();
+            renderHaccpLogs();
+            if (state.recipes.length > 0) {
+                selectRecipe(state.recipes[0].title_de);
+                updateScale();
+            }
+        }
+
+        function switchTab(tabName) {
+            ['service', 'recipes', 'scale', 'haccp'].forEach(t => {
+                const el = document.getElementById(`tab-${t}`);
+                if (el) el.classList.add('hidden');
+                const btn = document.getElementById(`btn-tab-${t}`);
+                if (btn) btn.className = "px-4 py-1.5 rounded-md text-xs font-bold transition-all text-slate-300 hover:text-white";
+                const bm = document.getElementById(`bm-tab-${t}`);
+                if (bm) bm.className = "py-2 text-[10px] font-bold text-slate-400 flex flex-col items-center";
+            });
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`btn-tab-${tabName}`);
+            if (activeBtn) activeBtn.className = "px-4 py-1.5 rounded-md text-xs font-bold transition-all bg-amber-500 text-black shadow";
+            const activeBm = document.getElementById(`bm-tab-${tabName}`);
+            if (activeBm) activeBm.className = "py-2 text-[10px] font-bold text-amber-500 flex flex-col items-center";
+            lucide.createIcons();
+        }
+
+        function populateSelects() {
+            ['recipe-select', 'scale-recipe-select', 'haccp-recipe-select', 'ticket-recipe-select'].forEach(id => {
+                const sel = document.getElementById(id);
+                if (!sel) return;
+                const val = sel.value;
+                sel.innerHTML = '';
+                state.recipes.forEach(r => {
+                    const opt = document.createElement('option');
+                    opt.value = r.title_de;
+                    opt.textContent = `${r.title_de} (${r.station})`;
+                    sel.appendChild(opt);
+                });
+                if (val) sel.value = val;
+            });
+        }
+
+        function filterStation(station) {
+            state.activeStationFilter = station;
+            document.querySelectorAll('.station-filter-btn').forEach(btn => {
+                btn.className = "station-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-dark-700 text-slate-300 hover:bg-dark-600 whitespace-nowrap";
+            });
+            const btnId = station === 'ALL' ? 'filter-all' : 'filter-' + station.split(' ')[0].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const b = document.getElementById(btnId) || document.getElementById('filter-all');
+            if (b) b.className = "station-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-black shadow whitespace-nowrap";
+            renderTickets();
+        }
+
+        function renderTickets() {
+            const grid = document.getElementById('tickets-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            const filtered = state.activeTickets.filter(t => state.activeStationFilter === 'ALL' || t.station === state.activeStationFilter);
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-16 text-center bg-dark-800 border border-slate-800 rounded-2xl"><i data-lucide="check-circle-2" class="w-12 h-12 text-emerald-500 mx-auto mb-3"></i><h3 class="text-sm font-bold text-slate-200">Aucun bon actif pour ce poste</h3></div>`;
+                lucide.createIcons();
+                return;
+            }
+            filtered.forEach(t => {
+                const rem = Math.max(0, (t.duration_min * 60) - t.elapsed_seconds);
+                const card = document.createElement('div');
+                card.className = "bg-dark-800 border border-slate-800 rounded-xl p-4 shadow-lg flex flex-col justify-between";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-500/20 text-amber-400">[${t.table}]</span>
+                            <span class="text-xs font-bold text-slate-300">${t.station}</span>
+                            <span class="text-sm font-black font-mono text-emerald-400">${Math.floor(rem/60)}:${String(rem%60).padStart(2,'0')}</span>
+                        </div>
+                        <h3 class="text-sm font-bold text-white mb-2">${t.title_de}</h3>
+                        <div class="bg-dark-900 border rounded-lg p-2.5 mb-4">
+                            <span class="block text-[10px] font-bold text-amber-500 uppercase mb-0.5">Instruction Active</span>
+                            <p class="text-xs text-slate-200">${t.cdp_step}</p>
+                        </div>
+                    </div>
+                    <button onclick="finishTicket('${t.id}')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2 rounded-lg shadow">Envoyé au Pass</button>
+                `;
+                grid.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        function tickTickets() {
+            let updated = false;
+            state.activeTickets.forEach(t => {
+                if (t.elapsed_seconds < t.duration_min * 60) {
+                    t.elapsed_seconds += 1;
+                    updated = true;
+                }
+            });
+            if (updated) { saveState(); renderTickets(); }
+        }
+
+        function openNewTicketModal() { document.getElementById('modal-new-ticket').classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function confirmNewTicket() {
+            const table = document.getElementById('ticket-table-input').value.trim() || 'Table 1';
+            const recName = document.getElementById('ticket-recipe-select').value;
+            const rec = state.recipes.find(r => r.title_de === recName);
+            if (rec) {
+                state.activeTickets.unshift({ id: 't_' + Date.now(), table, ...rec, elapsed_seconds: 0 });
+                saveState(); renderTickets(); closeModal('modal-new-ticket');
+            }
+        }
+        function finishTicket(id) { state.activeTickets = state.activeTickets.filter(t => t.id !== id); saveState(); renderTickets(); }
+
+        function selectRecipe(titleDe) {
+            const r = state.recipes.find(r => r.title_de === titleDe);
+            if (!r) return;
+            document.getElementById('rec-station-badge').textContent = r.station;
+            document.getElementById('rec-dur-val').textContent = r.duration_min;
+            document.getElementById('rec-title-de').textContent = r.title_de;
+            document.getElementById('rec-title-fr').textContent = r.title_fr;
+            document.getElementById('rec-crit-temp').textContent = r.critical_temp;
+            document.getElementById('rec-crit-tech').textContent = r.critical_tech;
+            document.getElementById('rec-chef-notes').textContent = r.chef_notes;
+            const ingBox = document.getElementById('rec-ingredients-list');
+            ingBox.innerHTML = '';
+            r.ingredients.forEach(i => {
+                ingBox.innerHTML += `<div class="flex items-center justify-between p-2.5 bg-dark-900 rounded-lg border border-slate-800 text-xs"><span class="font-medium text-white">${i.name}</span><span class="font-bold text-amber-400">${i.amount} ${i.unit}</span></div>`;
+            });
+        }
+
+        function updateScale() {
+            const rName = document.getElementById('scale-recipe-select').value;
+            const r = state.recipes.find(r => r.title_de === rName);
+            const covers = parseInt(document.getElementById('scale-covers-input').value) || 1;
+            if (!r) return;
+            document.getElementById('scale-output-title').textContent = `Mise en place pour ${covers} couvert(s)`;
+            const list = document.getElementById('scale-output-list');
+            list.innerHTML = '';
+            r.ingredients.forEach(i => {
+                list.innerHTML += `<div class="flex items-center justify-between p-2.5 bg-dark-800 rounded-lg text-xs border border-slate-800"><span>${i.name}</span><span class="font-bold text-amber-400">${i.amount * covers} ${i.unit}</span></div>`;
+            });
+        }
+        function setCovers(c) { document.getElementById('scale-covers-input').value = c; updateScale(); }
+
+        function recordHaccpProbe() {
+            const dish = document.getElementById('haccp-recipe-select').value;
+            const temp = parseFloat(document.getElementById('haccp-temp-input').value) || 75;
+            state.haccpLogs.unshift({ dish, measured: temp, target: 72, conforme: temp >= 72, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+            saveState(); renderHaccpLogs();
+        }
+
+        function renderHaccpLogs() {
+            const tbody = document.getElementById('haccp-logs-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = state.haccpLogs.map(l => `<tr><td class="py-3">${l.time}</td><td class="py-3">${l.dish}</td><td class="py-3 font-bold text-amber-400">${l.measured}°C</td><td class="py-3">${l.target}°C</td><td class="py-3">${l.conforme ? '<span class="text-emerald-400 font-bold">CONFORME</span>' : '<span class="text-red-400 font-bold">ALERTE</span>'}</td></tr>`).join('');
+        }
+    </script>
+</body>
+</html>
