@@ -1,36 +1,25 @@
 {
-  "background_color": "#ffffff",
-  "dir": "ltr",
-  "display": "standalone",
   "name": "Kreuz Kitchen",
-  "orientation": "any",
-  "scope": "/",
   "short_name": "Kreuz",
-  "start_url": "/",
-  "theme_color": "#ffffff",
-  "description": "KDS &amp; Gestion de Cuisine"
-}
-{
-  "background_color": "#ffffff",
-  "dir": "ltr",
-  "display": "standalone",
-  "name": "Kreuz Kitchen",
-  "orientation": "any",
-  "scope": "/",
-  "short_name": "Kreuz",
-  "start_url": "/",
-  "theme_color": "#ffffff",
   "description": "KDS & Gestion de Cuisine",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0a0d14",
+  "theme_color": "#f59e0b",
+  "orientation": "any",
   "icons": [
     {
       "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
